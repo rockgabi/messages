@@ -3,6 +3,7 @@
     <head>
         <title>Login Messages!</title>
         {{ HTML::style('css/vendor/bootstrap.min.css') }}
+        {{ HTML::style('css/vendor/bootstrap-theme.min.css') }}
         {{ HTML::style('css/main.css') }}
 
     </head>

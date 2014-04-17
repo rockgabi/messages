@@ -54,11 +54,37 @@ login.service('AuthService', ['$q', 'SessionService', function($q, SessionServic
     var login = function(credentials) { // Performs the login of a user
         var deferred = $q.defer();
         // Perform server login ...
-        SessionService.create(credentials.username, 'user');
-        deferred.resolve({
-            username: SessionService.username,
-            role: SessionService.role
-        });
+        var successLoginResp = {
+                meta: {
+                    success: true,
+                    code: 700,      // 700 Identity authenticated in the server
+                    message: 'Identity successfully authenticated'
+                },
+                data: {
+                    username: credentials.username,
+                    role: 'user'
+                }
+            },
+            errorLoginResp = {
+                meta: {
+                    success: false,     // A descriptive label for the operation result
+                    code: 600,      // 600: User does not exists
+                    message: 'The user does not exists'     // A message that came from the server
+                },
+                data: {
+                    username: credentials.username
+                }
+            },
+            loginResp = errorLoginResp; // Select which dummy response Ill use right now
+        if (loginResp.meta.success) {   // Successful logged in user
+            SessionService.create(loginResp.data.username, loginResp.data.role);
+            deferred.resolve({
+                username: SessionService.username,
+                role: SessionService.role
+            });
+        } else {
+            deferred.reject(loginResp.meta);
+        }
 
         return deferred.promise;
     };
@@ -79,7 +105,7 @@ login.service('AuthService', ['$q', 'SessionService', function($q, SessionServic
 
     var isLoggedIn = function() {
         return (typeof SessionService.username === 'String');
-    }
+    };
 
     return {
         login: login,
@@ -104,15 +130,21 @@ login.constant('AUTH_EVENTS', {
     sessionTimeout: 'auth-session-timeout',
     notAuthenticated: 'auth-not-authenticated',
     notAuthorized: 'auth-not-authorized'
-})
+});
 
 login.controller('LoginController', ['$scope', '$state', 'AuthService', function($scope, $state, AuthService){
+    $scope.loginMessages = [];
+    $scope.loginStateClass = 'pristine';
     $scope.login = function(credentials) {
         AuthService.login(credentials).then(function(userCredentials){
             if (userCredentials) {
                 $scope.credentials = { username: userCredentials.username, role: userCredentials.role };
                 $state.to('wall');
             }
+        }, function(metaData){
+            $scope.loginStateClass = 'alert alert-danger';
+            $scope.loginMessages = [metaData.message];
+            console.log('Error ', metaData);
         });
     }
 }]);
