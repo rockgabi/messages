@@ -1,11 +1,18 @@
-<form name="loginForm" id="login-form" class="col-md-6" ng-submit="login(credentials)">
-    <h2>Sign into Message! <span class="glyphicon glyphicon-log-in"></span></h2>
+<form name="loginForm" id="login-form" class="clearfix col-md-6" ng-class="{ loading: loading }" ng-submit="login(credentials)">
+    <h2>Sign into <span class="logo-titled">Message!</span> <span class="glyphicon glyphicon-log-in"></span></h2>
     <fieldset>
         <input type="text" class="form-control" ng-model="credentials.username" name="username" placeholder="Username" required />
         <input type="password" class="form-control" ng-model="credentials.password" name="password" placeholder="Password" required />
     </fieldset>
-    <input type="submit" id="send-credentials" class="btn btn-primary" ng-submit value="Sent" ng-disabled="loginForm.$invalid"/>
+    <div class="actions actions-centered clearfix">
+        <div class="actions-container">
+            <a href="#/signup" class="btn btn-info">Go to Sign Up</a>
+            <input type="submit" id="send-credentials" class="btn btn-primary" ng-submit value="Log In" ng-disabled="loginForm.$invalid"/>
+        </div>
+    </div>
+
     <ul id="login-messages" ng-class="loginStateClass">
         <li class="message" ng-repeat="loginMessage in loginMessages"><% loginMessage %></li>
     </ul>
+    <span class="preloader"></span>
 </form>

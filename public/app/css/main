@@ -1,11 +1,24 @@
 li { list-style-type: none; }
-#login-form h2 {
+.logo-titled { background-color: #dff0d8; border: 1px solid #d6e9c6; border-radius: 4px; padding: 0 4px;
+    display: inline-block;
+    -ms-transform:rotate(-3deg); /* IE 9 */
+    -webkit-transform: rotate(-3deg); /* Chrome, Safari, Opera */
+    transform:rotate(-3deg); /* Standard syntax */
+}
+#login-form h2, #sign-up-form h2 {
     text-align: center;
 }
-#login-form {
+#login-form, #sign-up-form {
     display: block;
     margin: 0 auto;
     float: none;
 }
-#login-form input { margin-bottom: 15px; }
-#login-form #send-credentials { display: block; margin: 0 auto; min-width: 150px; margin-bottom: 15px;}
+#login-form fieldset input, #sign-up-form fieldset input { margin-bottom: 15px; }
+.actions { margin-bottom: 15px; }
+.actions.actions-centered {position: relative; left: 50%; float: left; }
+.actions.actions-centered .actions-container { margin-left: -50%; }
+.actions .btn { min-width: 150px; }
+
+#sign-up-messages, #login-messages {
+    clear: both;
+}
