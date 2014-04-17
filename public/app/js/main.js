@@ -22,8 +22,10 @@ app.config(['$interpolateProvider', '$urlRouterProvider', '$stateProvider',
             })
 }]);
 
-app.controller('AppController', ['$scope', function($scope){
-
+app.controller('AppController', ['$scope', 'AuthService', 'USER_ROLES', function($scope, AuthService, USER_ROLES){
+    $scope.currentUser = null;
+    $scope.userRoles = USER_ROLES;
+    $scope.isAuthorized = AuthService.isAuthorized;
 }]);
 
 app.controller('WallController', ['$scope', function($scope){
@@ -33,18 +35,18 @@ app.controller('WallController', ['$scope', function($scope){
 var login = angular.module('m-login', []);
 
 login.service('SessionService', [function(){
-    this.username = null;
-    this.role = null;
-    var create = function(username, role) {
-        this.username = username;
-        this.role = role;
+    var username = null,
+        role = null;
+    var create = function(uname, r) {
+        username = uname;
+        role = r;
     };
     var destroy = function() {
-        this.username = null;
-        this.role = null;
+        username = null;
+        role = null;
     };
 
-    return { create: create, destroy: destroy };
+    return { create: create, destroy: destroy, username: username, role: role };
 }]);
 
 login.service('AuthService', ['$q', 'SessionService', function($q, SessionService){
@@ -62,13 +64,12 @@ login.service('AuthService', ['$q', 'SessionService', function($q, SessionServic
     };
 
     var credentials = function() {  // Get the current credentials
-        if (username) return { username: username, role: role };
+        if (SessionService.username) return { username: SessionService.username, role: SessionService.role };
         return false;
     };
 
     var logOut = function() {   // Logs out a user
-        username = null;
-        role = null;
+        SessionService.destroy();
     };
 
     var isAuthorized = function(authorizedRoles) {  // Check against an authorized array of roles if the current user has Authorization
@@ -76,15 +77,36 @@ login.service('AuthService', ['$q', 'SessionService', function($q, SessionServic
         return (authorizedRoles.indexOf(role) !== -1);  // Role is in the authorized array
     };
 
+    var isLoggedIn = function() {
+        return (typeof SessionService.username === 'String');
+    }
+
     return {
         login: login,
         credentials: credentials,
         logOut: logOut,
-        isAuthorized: isAuthorized
+        isAuthorized: isAuthorized,
+        isLoggedIn: isLoggedIn
     }
 }]);
 
-login.controller('LoginController', ['$scope', '$state', 'Authentication', function($scope, $state, AuthService){
+login.constant('USER_ROLES', {
+    all: '*',
+    admin: 'admin',
+    editor: 'editor',
+    guest: 'guest'
+});
+
+login.constant('AUTH_EVENTS', {
+    loginSuccess: 'auth-login-success',
+    loginFailed: 'auth-login-failed',
+    logoutSuccess: 'auth-logout-success',
+    sessionTimeout: 'auth-session-timeout',
+    notAuthenticated: 'auth-not-authenticated',
+    notAuthorized: 'auth-not-authorized'
+})
+
+login.controller('LoginController', ['$scope', '$state', 'AuthService', function($scope, $state, AuthService){
     $scope.login = function(credentials) {
         AuthService.login(credentials).then(function(userCredentials){
             if (userCredentials) {
