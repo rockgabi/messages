@@ -33,25 +33,59 @@ app.controller('AppController', ['$scope', 'AuthService', 'USER_ROLES', function
     $scope.isAuthorized = AuthService.isAuthorized;
 }]);
 
-app.controller('WallController', ['$scope', function($scope){
+app.controller('WallController', ['$scope', '$state', 'AuthService', function($scope, $state, AuthService){
+    // if (!AuthService.isLoggedIn()) $state.go('login');   // This is a cross-cutting concern
+    $scope.messages = [
+        {
+            username: 'Gabriel Medina',
+            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
+            mail: 'a@a.com',
+            body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt arcu ac mi faucibus porttitor. Curabitur quis libero ullamcorper metus tincidunt laoreet sed in lorem. Sed gravida arcu sed pharetra sollicitudin. Nulla facilisi. Duis risus dui, aliquam vel blandit eget',
+            date: new Date()
+        },
+        {
+            username: 'Gabriel Medina',
+            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
+            mail: 'a@a.com',
+            body: 'In pulvinar non odio eget tincidunt. Suspendisse vulputate mauris vitae ante vehicula, lacinia rhoncus sem varius',
+            date: new Date()
+        },
+        {
+            username: 'Gabriel Medina',
+            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
+            mail: 'a@a.com',
+            body: 'Donec mauris ligula, congue a egestas quis, volutpat et nulla. In ut lacinia quam. Mauris ultricies arcu non pellentesque imperdiet.',
+            date: new Date()
+        },
+        {
+            username: 'Gabriel Medina',
+            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
+            mail: 'a@a.com',
+            body: 'Suspendisse sit amet lorem id sapien sollicitudin placerat. Praesent sagittis quam sed dui cursus porttitor. Mauris accumsan massa a sapien ultrices blandit. Aliquam at lorem nec nibh interdum scelerisque. Aenean adipiscing magna at semper aliquam',
+            date: new Date()
+        }
+    ];
+}]);
+
+app.controller('MessageController', ['$scope', function($scope){
 
 }]);
 
 var login = angular.module('m-login', []);
 
 login.service('SessionService', [function(){
-    var username = null,
-        role = null;
+    this.username = null;
+    this.role = null;
     var create = function(uname, r) {
-        username = uname;
-        role = r;
+        this.username = uname;
+        this.role = r;
     };
     var destroy = function() {
-        username = null;
-        role = null;
+        this.username = null;
+        this.role = null;
     };
 
-    return { create: create, destroy: destroy, username: username, role: role };
+    return { create: create, destroy: destroy, username: this.username, role: this.role };
 }]);
 
 login.service('AuthService', ['$q', '$timeout', 'SessionService', function($q, $timeout, SessionService){
@@ -83,7 +117,7 @@ login.service('AuthService', ['$q', '$timeout', 'SessionService', function($q, $
                         username: credentials.username
                     }
                 },
-                loginResp = errorLoginResp; // Select which dummy response Ill use right now
+                loginResp = successLoginResp; // Select which dummy response Ill use right now
             if (loginResp.meta.success) {   // Successful logged in user
                 SessionService.create(loginResp.data.username, loginResp.data.role);
                 deferred.resolve({
@@ -150,7 +184,7 @@ login.service('AuthService', ['$q', '$timeout', 'SessionService', function($q, $
     };
 
     var isLoggedIn = function() {
-        return (typeof SessionService.username === 'String');
+        return (typeof SessionService.username === 'string');
     };
 
     return {
@@ -189,7 +223,7 @@ login.controller('LoginController', ['$scope', '$state', 'AuthService', function
             $scope.loading = false;
             if (userCredentials) {
                 $scope.credentials = { username: userCredentials.username, role: userCredentials.role };
-                $state.to('wall');
+                $state.go('wall');
             }
         }, function(errorInfo){
             $scope.loading = false;

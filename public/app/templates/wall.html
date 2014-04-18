@@ -1,0 +1,26 @@
+<section id="new-message" class="col-md-6 col-md-offset-3" ng-controller="MessageController">
+    <div class="light-bordered">
+        <p><span class="glyphicon glyphicon-pencil"></span>Share a new message!</p>
+        <div>
+            <textarea class="form-control control-reset" placeholder="Type here your message"></textarea>
+        </div>
+        <div id="new-message-actions" class="clearfix">
+            <button class="btn btn-success btn-sm">Publish</button>
+        </div>
+    </div>
+</section>
+
+<section id="wall" class="col-md-6 col-md-offset-3" ng-controller="WallController">
+    <div class="message light-bordered" ng-repeat="message in messages">
+        <div class="message-meta clearfix">
+            <img src ng-src="<% message.avatar %>" alt="message.username" />
+            <div class="message-data clearfix">
+                <h4 class="message-user"><% message.username %></h4>
+                <span class="message-date"><% message.date | date: 'longDate' %></span>
+            </div>
+        </div>
+        <div class="message-body">
+            <% message.body %>
+        </div>
+    </div>
+</section>

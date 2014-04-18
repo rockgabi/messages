@@ -9,9 +9,9 @@
     </head>
 
     <body ng-app="app">
-        <section id="credentials" class="container" ui-view>
+        <div class="container" ui-view>
             @yield('content')
-        </section>
+        </div>
 
         {{ HTML::script('js/vendor/jquery.min.js') }}
         {{ HTML::script('js/vendor/bootstrap.min.js') }}
