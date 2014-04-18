@@ -3,21 +3,21 @@
 class AuthController extends BaseController {
 
 	public function authenticate() {
+        $response = [
+            "meta" => [
+
+            ],
+            "data" => [
+
+            ]
+        ];
+
         if (Input::server("REQUEST_METHOD") == "POST") {
             $validator = Validator::make(Input::all(), [
                 "username" => "required",
                 "password" => "required"
             ]);
             if ($validator->passes()) {
-                $response = [
-                    "meta" => [
-
-                    ],
-                    "data" => [
-
-                    ]
-                ];
-
                 if (Auth::attempt(array("username" => Input::get("username"), "password" => Input::get("password")))) {
                     $user = Auth::user();
                     $response["meta"]["success"] = true;
@@ -45,5 +45,32 @@ class AuthController extends BaseController {
         $response["meta"]["message"] = "Forbidden";
         return json_encode($response);
 	}
+    public function register() {
+        $response = [
+            "meta" => [
+
+            ],
+            "data" => [
+
+            ]
+        ];
+        if (Input::server("REQUEST_METHOD") == "POST") {
+            $validator = Validator::make(Input::all(), [
+                "username" => "required",
+                "password" => "required",
+                "mail" => "required"
+            ]);
+            if ($validator->passes()) {
+                $user = User::attemptRegister(Input::all());
+                if ($user) {    // Successfully registered
+
+                } else {        // Couldn't register
+
+                }
+            } else {    // Haven't passed validations
+
+            }
+        }
+    }
 
 }
