@@ -16,6 +16,8 @@ Route::get('/', function()
 	return View::make('hello');
 });
 
+Route::post('auth', 'AuthController@authenticate');
+
 Route::get('/app', function(){
     return View::make('login');
 });

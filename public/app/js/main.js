@@ -88,49 +88,31 @@ login.service('SessionService', [function(){
     return { create: create, destroy: destroy, username: this.username, role: this.role };
 }]);
 
-login.service('AuthService', ['$q', '$timeout', 'SessionService', function($q, $timeout, SessionService){
+login.service('AuthService', ['$q', '$timeout', '$http', 'SessionService', function($q, $timeout, $http, SessionService){
 
-    var login = function(credentials) { // Performs the login of a user
+    var login = function(credentials) {
         if (typeof credentials !== 'object') throw new Error('Credentials argument not valid, needs to be an object');
         if (!credentials.username || !credentials.password) throw new Error('Credentials argument incomplete, username or password field missing');
+
         var deferred = $q.defer();
-        // Perform server login ...
-        $timeout(function(){
-            var successLoginResp = {
-                    meta: {
-                        success: true,
-                        code: 700,      // 700 Identity authenticated in the server
-                        message: 'Identity successfully authenticated'
-                    },
-                    data: {
-                        username: credentials.username,
-                        role: 'user'
-                    }
-                },
-                errorLoginResp = {
-                    meta: {
-                        success: false,     // A descriptive label for the operation result
-                        code: 600,      // 600: User does not exists
-                        message: 'The user does not exists'     // A message that came from the server
-                    },
-                    data: {
-                        username: credentials.username
-                    }
-                },
-                loginResp = successLoginResp; // Select which dummy response Ill use right now
-            if (loginResp.meta.success) {   // Successful logged in user
-                SessionService.create(loginResp.data.username, loginResp.data.role);
-                deferred.resolve({
-                    username: SessionService.username,
-                    role: SessionService.role
-                });
-            } else {
-                deferred.reject(loginResp.meta);
-            }
-        }, 1000);
+        $http.post('/auth', credentials)
+            .success(function(loginResp){
+                if (loginResp.meta.success) {   // Successful logged in user
+                    SessionService.create(loginResp.data.username, loginResp.data.role);
+                    deferred.resolve({
+                        username: SessionService.username,
+                        role: SessionService.role
+                    });
+                } else {
+                    deferred.reject(loginResp.meta);
+                }
+            })
+            .error(function(loginResp){
+                console.log('Auth Error', loginResp);
+            });
 
         return deferred.promise;
-    };
+    }
 
     var signUp = function(signUpInfo) {
         if (typeof signUpInfo !== 'object') throw new Error('The argument for signing up a user is not an object');
