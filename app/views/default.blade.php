@@ -8,7 +8,9 @@
 
     </head>
 
-    <body ng-app="app">
+    <body ng-app="app" ng-controller="AppController">
+        <div id="main-nav" ng-include="'templates/nav.html'">
+        </div>
         <div class="container" ui-view>
             @yield('content')
         </div>

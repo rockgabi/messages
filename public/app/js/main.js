@@ -27,10 +27,26 @@ app.config(['$interpolateProvider', '$urlRouterProvider', '$stateProvider',
             })
 }]);
 
-app.controller('AppController', ['$scope', 'AuthService', 'USER_ROLES', function($scope, AuthService, USER_ROLES){
+app.controller('AppController', ['$scope', '$rootScope', '$state', 'AuthService', 'USER_ROLES', function($scope, $rootScope, $state, AuthService, USER_ROLES){
     $scope.currentUser = null;
+    $scope.authenticated = false;
     $scope.userRoles = USER_ROLES;
     $scope.isAuthorized = AuthService.isAuthorized;
+
+    $rootScope.$on('UserAuthenticated', function(credentials){
+        $scope.currentUser = credentials;
+        $scope.authenticated = true;
+    });
+
+    $rootScope.$on('UserLoggedOut', function(){
+        $scope.currentUser = null;
+        $scope.authenticated = false;
+        $state.go('login');
+    });
+
+    $scope.logOut = function() {
+        AuthService.logOut();
+    }
 }]);
 
 app.controller('WallController', ['$scope', '$state', 'AuthService', function($scope, $state, AuthService){
@@ -71,6 +87,34 @@ app.controller('MessageController', ['$scope', function($scope){
 
 }]);
 
+// Set the active nav item in terms of the current $location url. It uses href attribute of the nav items to select the current one
+app.directive('navLinks', ['$rootScope', '$location', function($rootScope, $location){
+    var directiveDef = {
+        restrict: 'A',
+        link: function(scope, element, attr) {
+            var navLinks = $('li', element),
+                currentLink = null;
+            setCurrentLink();
+            $rootScope.$on('$locationChangeSuccess', function(){    // Listen every location url change, should find the new active to apply class
+                setCurrentLink();
+            });
+
+            function setCurrentLink() {
+                if (currentLink) { currentLink.removeClass('active'); }     // Remove the active class from the previous nav link item
+                navLinks.each(function(){     // Iterate over the navLinks to find the next active
+                    var $this = $(this);
+                    if ($('a', $this).attr('href') === '#' + $location.url()) { // If match with the current location url
+                        $this.addClass('active');
+                        currentLink = $this;
+                        return;     // Can break the loop and return
+                    }
+                });
+            }
+        }
+    };
+    return directiveDef;
+}]);
+
 var login = angular.module('m-login', []);
 
 login.service('SessionService', [function(){
@@ -88,7 +132,7 @@ login.service('SessionService', [function(){
     return { create: create, destroy: destroy, username: this.username, role: this.role };
 }]);
 
-login.service('AuthService', ['$q', '$timeout', '$http', 'SessionService', function($q, $timeout, $http, SessionService){
+login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionService', function($q, $timeout, $http, $rootScope, SessionService){
 
     var login = function(credentials) {
         if (typeof credentials !== 'object') throw new Error('Credentials argument not valid, needs to be an object');
@@ -99,6 +143,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', 'SessionService', funct
             .success(function(loginResp){
                 if (loginResp.meta.success) {   // Successful logged in user
                     SessionService.create(loginResp.data.username, loginResp.data.role);
+                    $rootScope.$broadcast('UserAuthenticated', { username: SessionService.username, role: SessionService.role });
                     deferred.resolve({
                         username: SessionService.username,
                         role: SessionService.role
@@ -112,7 +157,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', 'SessionService', funct
             });
 
         return deferred.promise;
-    }
+    };
 
     var signUp = function(signUpInfo) {
         if (typeof signUpInfo !== 'object') throw new Error('The argument for signing up a user is not an object');
@@ -158,6 +203,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', 'SessionService', funct
 
     var logOut = function() {   // Logs out a user
         SessionService.destroy();
+        $rootScope.$broadcast('UserLoggedOut');
     };
 
     var isAuthorized = function(authorizedRoles) {  // Check against an authorized array of roles if the current user has Authorization
@@ -205,6 +251,7 @@ login.controller('LoginController', ['$scope', '$state', 'AuthService', function
             $scope.loading = false;
             if (userCredentials) {
                 $scope.credentials = { username: userCredentials.username, role: userCredentials.role };
+                //$scope.$emit('UserAuthenticated', $scope.credentials);  // Inform the authentication
                 $state.go('wall');
             }
         }, function(errorInfo){
@@ -212,7 +259,16 @@ login.controller('LoginController', ['$scope', '$state', 'AuthService', function
             $scope.loginStateClass = 'alert alert-danger';
             $scope.loginMessages = [errorInfo.message];
         });
-    }
+    };
+
+    $scope.logOut = function() {
+        $scope.loading = true;
+        AuthService.logOut().then(function(){
+            $scope.loading = false;
+        }, function(){ $scope.loading = false; });
+    };
+
+    if (AuthService.isLoggedIn()) { $state.go('wall'); }
 }]);
 
 login.controller('SignUpController', ['$scope', '$state', 'AuthService', function($scope, $state, AuthService){

@@ -1,9 +1,25 @@
 body { background-color: #e9eaed; }
 li { list-style-type: none; }
+a { color: #5cb85c}
 
 .preloader { display: none; position: absolute; bottom: 0; right: 15px; width: 32px; height: 11px; background: url('../img/preloader.gif') 0 0 no-repeat; }
 .loading .preloader { display: block; }
-.logo-titled { background-color: #dff0d8; border: 1px solid #d6e9c6; border-radius: 4px; padding: 0 4px;
+
+/* MAIN NAV */
+#main-nav { background-color: #333;}
+#main-nav nav { padding: 5px 0; }
+#main-nav #logo {
+    padding: 9px 0;
+}
+#main-nav li { margin-left: 5px; }
+
+.nav.nav-pills > li { float: right; }
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    background-color: #5cb85c;
+}
+.nav>li>a:hover, .nav>li>a:focus { background-color: #5cb85c; color: #fff; }
+
+.logo-titled { font-weight: bold; background-color: #dff0d8; border: 1px solid #d6e9c6; border-radius: 4px; padding: 0 4px;
     display: inline-block;
     -ms-transform:rotate(-3deg); /* IE 9 */
     -webkit-transform:rotate(-3deg); /* Chrome, Safari, Opera */
