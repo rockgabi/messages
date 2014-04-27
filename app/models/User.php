@@ -19,6 +19,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 */
 	protected $hidden = array('password');
 
+    protected $guarded = array('id', 'password');
+
 	/**
 	 * Get the unique identifier for the user.
 	 *
@@ -50,7 +52,37 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	}
 
     public static function attemptRegister($userData){
-        
+        $validator = Validator::make($userData, [
+            "username"  =>  "required",
+            "password"  =>  "required",
+            "mail"      =>  "required"
+        ]);
+        if ($validator.passes()) {
+            $user = User::create(["username" => $userData.username, "password", Hash::make($userData.password), "mail" => $userData.mail]);
+            if ($user) {
+                return [
+                    "meta" => [
+                        "success" => true,
+                        "code" => 710,
+                        "message" => "User registered successfully"
+                    ],
+                    "data" => [
+                        "username" => $user->username,
+                        "role" => $user->role,
+                        "id" => $user->id,
+                        "mail" => $user->mail
+                    ]
+                ];
+            }
+        }
+        return [
+            "meta" => [
+                "success" => false,
+                "code" => 610,
+                "message" => "There was a problem registering the user"
+            ],
+            "data" => []
+        ];
     }
 
 }

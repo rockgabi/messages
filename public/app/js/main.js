@@ -257,7 +257,7 @@ login.controller('LoginController', ['$scope', '$state', 'AuthService', function
         }, function(errorInfo){
             $scope.loading = false;
             $scope.loginStateClass = 'alert alert-danger';
-            $scope.loginMessages = [errorInfo.message];
+            $scope.loginMessages = errorInfo.messages;
         });
     };
 
