@@ -139,7 +139,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionS
         if (!credentials.username || !credentials.password) throw new Error('Credentials argument incomplete, username or password field missing');
 
         var deferred = $q.defer();
-        $http.post('/auth', credentials)
+        $http.post('/auth', credentials, {})
             .success(function(loginResp){
                 if (loginResp.meta.success) {   // Successful logged in user
                     SessionService.create(loginResp.data.username, loginResp.data.role);
@@ -153,7 +153,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionS
                 }
             })
             .error(function(loginResp){
-                console.log('Auth Error', loginResp);
+                deferred.reject({ message: 'An error occurred' });
             });
 
         return deferred.promise;
@@ -164,34 +164,19 @@ login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionS
         if (typeof signUpInfo.username !== 'string' || typeof signUpInfo.password !== 'string') { throw new Error('username or password fields are missing from the signup argument ')};
         var deferred = $q.defer();
 
-        $timeout(function(){
-            var successSignUpResp = {
-                    meta: {
-                        success: true,
-                        code: 710,      // 710 User registered correctly
-                        message: 'The user has been successfully registered'
-                    },
-                    data: {
-                        username: credentials.username
-                    }
-                },
-                errorSignUpResp = {
-                    meta: {
-                        success: false,     // A descriptive label for the operation result
-                        code: 610,      // 600: Username already exists
-                        message: 'The username already exists'     // A message that came from the server
-                    },
-                    data: {
-                        username: credentials.username
-                    }
-                },
-                signUpResp = successSignUpResp; // Select which dummy response Ill use right now
-            if (signUpResp.meta.success) {
-                deferred.resolve();
-            } else {
-                deferred.reject(signUpResp.meta);
-            }
-        }, 1000);
+        $http.post('/register', signUpInfo, {})
+            .success(function(registerResp){
+                if (registerResp.meta.success) {
+                    deferred.resolve({
+                        username: registerResp.data.username
+                    });
+                } else {
+                    deferred.reject(registerResp.meta);
+                }
+            })
+            .error(function(registerResp){
+                deferred.reject({ message: 'An error occurred' });
+            });
 
         return deferred.promise;
     };
@@ -285,6 +270,7 @@ login.controller('SignUpController', ['$scope', '$state', 'AuthService', functio
                 $scope.loading = false;
                 $scope.signUpStateClass = 'alert alert-success';
                 $scope.signUpMessages = ['Your account has been registered'];
+                $scope.credentials = {};
             }, function(errorInfo){
                 $scope.loading = false;
                 $scope.signUpStateClass = 'alert alert-danger';

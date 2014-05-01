@@ -17,6 +17,7 @@ Route::get('/', function()
 });
 
 Route::post('auth', 'AuthController@authenticate');
+Route::post('register', 'AuthController@register');
 
 Route::get('/app', function(){
     return View::make('login');

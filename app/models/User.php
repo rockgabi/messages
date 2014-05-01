@@ -5,6 +5,7 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
+    const DEFAULT_ROLE = "user";
 	/**
 	 * The database table used by the model.
 	 *
@@ -57,32 +58,20 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             "password"  =>  "required",
             "mail"      =>  "required"
         ]);
-        if ($validator.passes()) {
-            $user = User::create(["username" => $userData.username, "password", Hash::make($userData.password), "mail" => $userData.mail]);
+        if ($validator->passes()) {
+            $user = new User();
+            $user->username = $userData["username"];
+            $user->password = Hash::make($userData["password"]);
+            $user->mail = $userData["mail"];
+            $user->role = self::DEFAULT_ROLE;
+            $user->save();
             if ($user) {
-                return [
-                    "meta" => [
-                        "success" => true,
-                        "code" => 710,
-                        "message" => "User registered successfully"
-                    ],
-                    "data" => [
-                        "username" => $user->username,
-                        "role" => $user->role,
-                        "id" => $user->id,
-                        "mail" => $user->mail
-                    ]
-                ];
+                return $user;
             }
+        } else {
+            Throw new Exception("Attempt to register the user failed due to a missing argument [username/password/mail]");
         }
-        return [
-            "meta" => [
-                "success" => false,
-                "code" => 610,
-                "message" => "There was a problem registering the user"
-            ],
-            "data" => []
-        ];
+        return null;
     }
 
 }

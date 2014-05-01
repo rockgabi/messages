@@ -32,14 +32,16 @@ class Operation {
     }
 
     /**
-     * Adds an assess point for the operations, this creates a new message
-     *
-     * @param $assessmentType   [FAILING|WARNING|INFO] the type of the assessment point
-     * @param $message  [string] message of this assessment point
+     * @param string $assessmentType   [FAILING|WARNING|INFO] the type of the assessment point
+     * @param string $message      message of this assessment point
+     * @param null $data    data associated with the message
+     * @return $this
      */
-    public function assessPoint($assessmentType, $message) {
+    public function assessPoint($assessmentType, $message, $data = null) {
         $this->messages[] = ["type" => $assessmentType, "message" => $message];
         $this->success = ($assessmentType == self::FAILING) ? false : $this->success;
+        if (!is_null($data)) $this->addData($data);
+        return $this;
     }
 
     public function addData($dataBox) {
