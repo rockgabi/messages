@@ -18,6 +18,7 @@ Route::get('/', function()
 
 Route::post('auth', 'AuthController@authenticate');
 Route::post('register', 'AuthController@register');
+Route::controller('messages', 'MessageController');
 
 Route::get('/app', function(){
     return View::make('login');

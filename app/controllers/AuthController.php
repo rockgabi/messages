@@ -14,7 +14,7 @@ class AuthController extends BaseController {
             if ($validator->passes()) {
                 if (Auth::attempt(array("username" => Input::get("username"), "password" => Input::get("password")))) {
                     $user = Auth::user();
-                    $operation->assessPoint($operation::INFO, "Identity successfully authenticated", ["username" => $user->username, "role" => $user->role]);
+                    $operation->assessPoint($operation::INFO, "Identity successfully authenticated", ["id" => $user->id, "username" => $user->username, "role" => $user->role]);
                     return $operation->endOperation()->toJSON();
                 } else {
                     $operation->assessPoint($operation::FAILING, "Identity couldn't be authenticated", ["username" => Input::get("username")]);

@@ -49,38 +49,22 @@ app.controller('AppController', ['$scope', '$rootScope', '$state', 'AuthService'
     }
 }]);
 
-app.controller('WallController', ['$scope', '$state', 'AuthService', function($scope, $state, AuthService){
-    // if (!AuthService.isLoggedIn()) $state.go('login');   // This is a cross-cutting concern
+app.controller('WallController', ['$scope', '$state', '$http', 'AuthService', 'SessionService', function($scope, $state, $http, AuthService, SessionService){
     $scope.messages = [
-        {
-            username: 'Gabriel Medina',
-            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
-            mail: 'a@a.com',
-            body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec tincidunt arcu ac mi faucibus porttitor. Curabitur quis libero ullamcorper metus tincidunt laoreet sed in lorem. Sed gravida arcu sed pharetra sollicitudin. Nulla facilisi. Duis risus dui, aliquam vel blandit eget',
-            date: new Date()
-        },
-        {
-            username: 'Gabriel Medina',
-            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
-            mail: 'a@a.com',
-            body: 'In pulvinar non odio eget tincidunt. Suspendisse vulputate mauris vitae ante vehicula, lacinia rhoncus sem varius',
-            date: new Date()
-        },
-        {
-            username: 'Gabriel Medina',
-            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
-            mail: 'a@a.com',
-            body: 'Donec mauris ligula, congue a egestas quis, volutpat et nulla. In ut lacinia quam. Mauris ultricies arcu non pellentesque imperdiet.',
-            date: new Date()
-        },
-        {
-            username: 'Gabriel Medina',
-            avatar: 'http://debates.coches.net/image.php?u=20837&dateline=1189414879',
-            mail: 'a@a.com',
-            body: 'Suspendisse sit amet lorem id sapien sollicitudin placerat. Praesent sagittis quam sed dui cursus porttitor. Mauris accumsan massa a sapien ultrices blandit. Aliquam at lorem nec nibh interdum scelerisque. Aenean adipiscing magna at semper aliquam',
-            date: new Date()
-        }
+
     ];
+
+    $http({ method: 'GET', url: '/messages' })
+        .success(function(messagesResp){
+            if (messagesResp.meta.success)
+                $scope.messages = messagesResp.data.messages;
+            else
+                $scope.messages = [];
+        })
+        .error(function(){
+            $scope.messages = [];
+        });
+
 }]);
 
 app.controller('MessageController', ['$scope', function($scope){
@@ -120,16 +104,19 @@ var login = angular.module('m-login', []);
 login.service('SessionService', [function(){
     this.username = null;
     this.role = null;
-    var create = function(uname, r) {
+    this.user_id = null;
+    var create = function(uname, r, uid) {
         this.username = uname;
         this.role = r;
+        this.user_id = uid;
     };
     var destroy = function() {
         this.username = null;
         this.role = null;
+        this.user_id = null;
     };
 
-    return { create: create, destroy: destroy, username: this.username, role: this.role };
+    return { create: create, destroy: destroy, username: this.username, role: this.role, user_id: this.user_id };
 }]);
 
 login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionService', function($q, $timeout, $http, $rootScope, SessionService){
@@ -142,7 +129,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionS
         $http.post('/auth', credentials, {})
             .success(function(loginResp){
                 if (loginResp.meta.success) {   // Successful logged in user
-                    SessionService.create(loginResp.data.username, loginResp.data.role);
+                    SessionService.create(loginResp.data.username, loginResp.data.role, loginResp.data.id);
                     $rootScope.$broadcast('UserAuthenticated', { username: SessionService.username, role: SessionService.role });
                     deferred.resolve({
                         username: SessionService.username,
