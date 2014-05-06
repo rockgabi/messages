@@ -67,8 +67,27 @@ app.controller('WallController', ['$scope', '$state', '$http', 'AuthService', 'S
 
 }]);
 
-app.controller('MessageController', ['$scope', function($scope){
+/**
+ * Controller for the message functionality in the wall of the app
+ *
+ */
+app.controller('MessageController', ['$scope', '$http', function($scope, $http){
 
+    $scope.sendMessage = function() {   // Method for sending a message to the server
+        if ($scope.typedMessage !== "" ) {    // Perform only when a messages has been typed
+            $scope.loading = true;      // State loading
+            $http.post('/messages', { message: $scope.typedMessage }, {})   // Hits the message service in the Backend
+                .success(function(sendResponse){
+                    console.log('Success', sendResponse);
+                    $scope.messages.push(sendResponse.data);    // Add to the messages array
+                    $scope.loading = false;
+                })
+                .error(function(sendResponse){
+                    console.log('Error', sendResponse);
+                    $scope.loading = false;
+                });
+        }
+    }
 }]);
 
 // Set the active nav item in terms of the current $location url. It uses href attribute of the nav items to select the current one
@@ -101,16 +120,20 @@ app.directive('navLinks', ['$rootScope', '$location', function($rootScope, $loca
 
 var login = angular.module('m-login', []);
 
+/**
+ * Service in charge of storing the current user in session
+ *
+ */
 login.service('SessionService', [function(){
     this.username = null;
     this.role = null;
     this.user_id = null;
-    var create = function(uname, r, uid) {
+    var create = function(uname, r, uid) {  // Creates the current user in this session
         this.username = uname;
         this.role = r;
         this.user_id = uid;
     };
-    var destroy = function() {
+    var destroy = function() {  // Removes the current user from the Session
         this.username = null;
         this.role = null;
         this.user_id = null;
@@ -119,27 +142,31 @@ login.service('SessionService', [function(){
     return { create: create, destroy: destroy, username: this.username, role: this.role, user_id: this.user_id };
 }]);
 
+/**
+ * Service in charge of any authentication operation, wires with the Backend Auth services
+ *
+ */
 login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionService', function($q, $timeout, $http, $rootScope, SessionService){
 
-    var login = function(credentials) {
-        if (typeof credentials !== 'object') throw new Error('Credentials argument not valid, needs to be an object');
+    var login = function(credentials) { // Log in method, returns a promise since it is async
+        if (typeof credentials !== 'object') throw new Error('Credentials argument not valid, needs to be an object');  // Credential should be object
         if (!credentials.username || !credentials.password) throw new Error('Credentials argument incomplete, username or password field missing');
 
         var deferred = $q.defer();
-        $http.post('/auth', credentials, {})
+        $http.post('/auth', credentials, {})// Hits the auth service, uses POST since should be secure
             .success(function(loginResp){
                 if (loginResp.meta.success) {   // Successful logged in user
                     SessionService.create(loginResp.data.username, loginResp.data.role, loginResp.data.id);
-                    $rootScope.$broadcast('UserAuthenticated', { username: SessionService.username, role: SessionService.role });
-                    deferred.resolve({
+                    $rootScope.$broadcast('UserAuthenticated', { username: SessionService.username, role: SessionService.role });   // Broadcast a message in the Rootscope notifying
+                    deferred.resolve({  // Cache the credentials in the Session
                         username: SessionService.username,
                         role: SessionService.role
                     });
-                } else {
+                } else {    // Even the HTTP request has been successful, the Auth service from the backend caught an error
                     deferred.reject(loginResp.meta);
                 }
             })
-            .error(function(loginResp){
+            .error(function(loginResp){ // Error in the login service
                 deferred.reject({ message: 'An error occurred' });
             });
 
