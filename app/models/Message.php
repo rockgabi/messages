@@ -53,4 +53,10 @@ class Message extends Eloquent {
         return $rawCreatedMessage;
     }
 
+    public static function remove($message_id) {
+        $message = Message::find($message_id);
+        if ($message) {
+            $message->delete();
+        }
+    }
 }

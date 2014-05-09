@@ -89,7 +89,7 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
                 break;
             }
         }
-        $http.delete('/messages/action/' + messageId, { })    // Perform a delete HTTP request for messages providing the id
+        $http.delete('/messages', { id: messageId })    // Perform a delete HTTP request for messages providing the id
             .success(function(removeResponse){
                 console.log('Success', removeResponse);
             })

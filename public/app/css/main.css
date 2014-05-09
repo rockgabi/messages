@@ -1,6 +1,7 @@
 body { background-color: #e9eaed; }
 li { list-style-type: none; }
-a { color: #5cb85c}
+a { color: #5cb85c} 
+button { background: none; border: none; padding: 0; margin: 0; }
 
 .preloader { display: none; position: absolute; bottom: 0; right: 15px; width: 32px; height: 11px; background: url('../img/preloader.gif') 0 0 no-repeat; }
 #new-message .preloader { left: 10px; background-position: 0 50%; height: 100%; }
@@ -67,11 +68,16 @@ a { color: #5cb85c}
 
 #new-message-actions { line-height: 30px; position: relative; }
 #new-message-actions button { float: right; margin-top: 5px; margin-bottom: 5px; margin-right: 15px; min-width: 85px;}
+.message-meta .remove-message {}
 
 #wall .message { margin-bottom: 15px; background-color: #fff; }
-#wall .message .message-meta { background-color: #f6f7f8; padding: 15px;}
+#wall .message .message-meta { background-color: #f6f7f8; padding: 15px; position: relative;}
 #wall .message .message-meta img { width: 50px; height: 50px; border: 1px solid #d0d1d5; float: left; margin-right: 15px;}
 #wall .message .message-meta .message-data { float: left; }
 #wall .message .message-meta .message-data .message-user { margin-top: 0; color: #3c763d; }
 #wall .message .message-meta .message-data .message-date { font-size: 12px; }
 #wall .message .message-body { padding: 15px; }
+
+#wall .remove-message { position: absolute; right: 15px; top: 15px;}
+
+#wall .def.no-messages { text-align: center; color: #BBBBBB; text-shadow: 1px 1px 1px #333333; font-style: italic; font-weight: normal; font-size: 15px; }

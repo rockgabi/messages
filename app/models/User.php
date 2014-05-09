@@ -52,7 +52,14 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 		return $this->email;
 	}
 
-    public static function attemptRegister($userData){
+    /**
+     * Attempts to register a new user in the system
+     *
+     * @param array $userData   is an associative array containing the required fields, username \ password \ mail
+     * @return null|User
+     * @throws Exception
+     */
+    public static function attemptRegister($userData = array()){
         $validator = Validator::make($userData, [
             "username"  =>  "required",
             "password"  =>  "required",
@@ -72,6 +79,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             Throw new Exception("Attempt to register the user failed due to a missing argument [username/password/mail]");
         }
         return null;
+    }
+
+    /**
+     * Removes a message from this user
+     *
+     * @param $messageId    is the id of the message to remove
+     */
+    public function removeMessage($messageId) {
+        $message = Message::find($messageId);
+        if ($message->user_id == $this->id) {   // Is a message from this user
+            $message->delete();     // Delete this model
+        }
     }
 
 }

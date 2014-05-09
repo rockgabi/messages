@@ -1,4 +1,4 @@
-<section id="new-message" class="col-md-6 col-md-offset-3" ng-class="{ loading: loading }" ng-controller="MessageController">
+<section id="new-message" class="col-md-6 col-md-offset-3" ng-class="{ loading: loading }">
     <div class="light-bordered">
         <p><span class="glyphicon glyphicon-pencil"></span>Share a new message!</p>
         <div>
@@ -19,9 +19,13 @@
                 <h4 class="message-user"><% message.username %></h4>
                 <span class="message-date"><% message.created_at | date: 'longDate' %></span>
             </div>
+            <button ng-click="removeMessage(message.id)" class="remove-message"><span class="glyphicon glyphicon-remove"></span></button>
         </div>
         <div class="message-body">
             <% message.message %>
         </div>
+    </div>
+    <div class="def no-messages" ng-hide="messages.length > 0">
+        <h3>No messages, start adding some!</h3>
     </div>
 </section>

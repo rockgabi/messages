@@ -40,4 +40,21 @@ class MessageController extends BaseController {
         $response->header("Content-Type", "application/json");  // Modify headers to send JSON explicitly
         return $response;
     }
+
+    public function deleteAction($messageId) {
+        $ret = null;
+        $operation = new Messages\Support\Operation("put-message", "Request for adding a new message");
+        $loggedUser = Auth::user();
+        if (!$loggedUser) throw new Exception("User to be logged in was expected, but there's none");
+
+        if (!is_null($messageId)){
+            $loggedUser->removeMessage($messageId);
+            $ret = $operation->assessPoint($operation::INFO, "Message removed successfully")->endOperation()->toJSON();
+        } else {
+            $ret = $operation->assessPoint($operation::FAILING, "Message ID parameter is missing")->endOperation()->toJSON();
+        }
+        $response = Response::make($ret, 200);  // Create the response wrapper
+        $response->header("Content-Type", "application/json");  // Modify headers to send JSON explicitly
+        return $response;
+    }
 }
