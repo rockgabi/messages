@@ -12,10 +12,10 @@ class FriendInvitation extends Eloquent {
      */
     public static function addInvitation($userInitiatorId, $userTargetId) {
         if (!FriendInvitation::invitationExists($userInitiatorId, $userTargetId)) {
-            FriendInvitation::create(array(
-                "user_initiator_id" => $userInitiatorId,
-                "user_target_id" => $userTargetId
-            ));
+            $friendInvitation = new FriendInvitation();
+            $friendInvitation->user_initiator_id = $userInitiatorId;
+            $friendInvitation->user_target_id = $userTargetId;
+            $friendInvitation->save();
         }
     }
 
@@ -33,7 +33,7 @@ class FriendInvitation extends Eloquent {
     public static function invitationExists($userInitiatorId, $userTargetId) {
         $invitation = FriendInvitation::where("user_initiator_id", "=", $userInitiatorId)
             ->where("user_target_id", "=", $userTargetId, "AND");
-        if ($invitation) return true;
+        if ($invitation->count() > 0) return true;
         else return false;
     }
 }

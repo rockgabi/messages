@@ -55,6 +55,7 @@ app.controller('AppController', ['$scope', '$rootScope', '$state', 'AuthService'
  */
 app.controller('MessageController', ['$scope', '$http', function($scope, $http){
     $scope.messages = [];
+    $scope.recommended = [];
 
     $http({ method: 'GET', url: '/messages' })  // Hits the messages services from the backend.
         .success(function(messagesResp){
@@ -65,6 +66,17 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
         })
         .error(function(){
             $scope.messages = [];
+        });
+
+    $http({ method: 'GET', url: '/friends/recommended'})    // Fetch the recommended users
+        .success(function(recommendedResp){
+            if (recommendedResp.meta.success)
+                $scope.recommended = recommendedResp.data.users;    // Fill with the recommended users
+            else
+                $scope.recommended = [];
+        })
+        .error(function(){
+            $scope.recommended = [];
         });
 
     $scope.sendMessage = function() {   // Method for sending a message to the server
@@ -80,7 +92,7 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
                     $scope.loading = false;
                 });
         }
-    }
+    };
 
     $scope.removeMessage = function(messageId) {    // Method for removing a message
         for (var i=0; i<$scope.messages.length; i++) {  // Iterate over messages
@@ -95,7 +107,23 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
             })
             .error(function(removeResponse){
                 console.log('Error', removeResponse);
+            });
+    };
+
+    $scope.sendInvitation = function(id) {
+        $http.post('/friends', { id: id }, {})      // By hitting this rest url we send an invitation to the id provided
+            .success(function(addFriendResponse){
+                console.log('Success', addFriendResponse);
+                for (var i=0; i<$scope.recommended.length; i++) {
+                    if ($scope.recommended[i].id === id) {
+                        $scope.recommended.splice(i, 1);
+                        break;
+                    }
+                }
             })
+            .error(function(addFriendResponse){
+                console.log('Error', addFriendResponse);
+            });
     }
 }]);
 

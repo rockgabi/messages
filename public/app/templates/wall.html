@@ -1,31 +1,53 @@
-<section id="new-message" class="col-md-6 col-md-offset-3" ng-class="{ loading: loading }">
-    <div class="light-bordered">
-        <p><span class="glyphicon glyphicon-pencil"></span>Share a new message!</p>
-        <div>
-            <textarea class="form-control control-reset" placeholder="Type here your message" ng-model="typedMessage"></textarea>
-        </div>
-        <div id="new-message-actions" class="clearfix">
-            <span class="preloader"></span>
-            <button class="btn btn-success btn-sm" ng-click="sendMessage()">Publish</button>
-        </div>
-    </div>
-</section>
-
-<section id="wall" class="col-md-6 col-md-offset-3">
-    <div class="message light-bordered" ng-repeat="message in messages | orderBy: 'created_at' : true">
-        <div class="message-meta clearfix">
-            <img src ng-src="<% message.avatar %>" alt="message.username" />
-            <div class="message-data clearfix">
-                <h4 class="message-user"><% message.username %></h4>
-                <span class="message-date"><% message.created_at | date: 'longDate' %></span>
+<div id="main" class="col-md-6 col-md-offset-3">
+    <section id="new-message"  ng-class="{ loading: loading }">
+        <div class="light-bordered">
+            <p><span class="glyphicon glyphicon-pencil"></span>Share a new message!</p>
+            <div>
+                <textarea class="form-control control-reset" placeholder="Type here your message" ng-model="typedMessage"></textarea>
             </div>
-            <button ng-click="removeMessage(message.id)" class="remove-message"><span class="glyphicon glyphicon-remove"></span></button>
+            <div id="new-message-actions" class="clearfix">
+                <span class="preloader"></span>
+                <button class="btn btn-success btn-sm" ng-click="sendMessage()">Publish</button>
+            </div>
         </div>
-        <div class="message-body">
-            <% message.message %>
+    </section>
+
+    <section id="wall" class="">
+        <div class="message light-bordered" ng-repeat="message in messages | orderBy: 'created_at' : true">
+            <div class="message-meta clearfix">
+                <img src ng-src="<% message.avatar %>" alt="message.username" />
+                <div class="message-data clearfix">
+                    <h4 class="message-user"><% message.username %></h4>
+                    <span class="message-date"><% message.created_at | date: 'longDate' %></span>
+                </div>
+                <button ng-click="removeMessage(message.id)" class="remove-message"><span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+            <div class="message-body">
+                <% message.message %>
+            </div>
         </div>
+        <div class="def no-messages" ng-hide="messages.length > 0">
+            <h3>No messages, start adding some!</h3>
+        </div>
+    </section>
+</div>
+
+
+<section id="sidebar" class="col-md-3 light-bordered">
+    <div class="sidebar-item">
+        <h5><span class="glyphicon glyphicon-search"></span>Search for friends</h5>
+        <input type="text" class="form-control" placeholder="Type his name" />
     </div>
-    <div class="def no-messages" ng-hide="messages.length > 0">
-        <h3>No messages, start adding some!</h3>
+
+    <div class="sidebar-item">
+        <h5><span class="glyphicon glyphicon-th-list"></span>Recommended friends</h5>
+        <ul id="recommended" ng-repeat="user in recommended">
+            <li class="usr-info-min">
+                <img ng-src="<% user.avatar %>" alt="user.username"/>
+                <p><% user.username %></p>
+                <a href="" ng-click="sendInvitation(user.id)">Send invitation</a>
+            </li>
+        </ul>
     </div>
+
 </section>

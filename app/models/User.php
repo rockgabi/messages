@@ -5,6 +5,10 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
+    protected $attributes = [
+        "avatar" => "http://debates.coches.net/image.php?u=20837&dateline=1189414879"       // Hardcoded since it's just dummy data
+    ];
+
     const DEFAULT_ROLE = "user";
 	/**
 	 * The database table used by the model.
@@ -95,6 +99,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public function sendInvitation($user_target_id) {
         FriendInvitation::addInvitation($this->id, $user_target_id);
+    }
+
+    /**
+     * Returns an array of recommended users for this user
+     *
+     * @return array    recommended users for this user
+     */
+    public function getRecommended() {
+        $users = User::where("id", "!=", $this->id)->get();
+        return $users->toArray();
     }
 
 }
