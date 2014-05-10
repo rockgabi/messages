@@ -20,7 +20,9 @@
                     <h4 class="message-user"><% message.username %></h4>
                     <span class="message-date"><% message.created_at | date: 'longDate' %></span>
                 </div>
-                <button ng-click="removeMessage(message.id)" class="remove-message"><span class="glyphicon glyphicon-remove"></span></button>
+                <button ng-hide="message.user_id !== currentUser.id" ng-click="removeMessage(message.id)" class="remove-message">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
             </div>
             <div class="message-body">
                 <% message.message %>

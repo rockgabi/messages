@@ -16,6 +16,16 @@ class Message extends Eloquent {
             $messages = DB::table("messages")
                 ->join("users", "messages.user_id", "=", "users.id")
                 ->where("user_id", "=", $user_id)
+                ->whereIn("user_id", function($query) use ($user_id) {
+                    $query->select("user1_id")
+                        ->from("friendship")
+                        ->where("user2_id", "=", $user_id);
+                }, "OR")
+                ->whereIn("user_id", function($query) use ($user_id) {
+                    $query->select("user2_id")
+                        ->from("friendship")
+                        ->where("user1_id", "=", $user_id);
+                }, "OR")
                 ->select("users.id as user_id", "users.username", "users.avatar", "messages.id",
                     "messages.message", "messages.created_at")
                 ->get();

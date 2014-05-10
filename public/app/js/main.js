@@ -33,7 +33,7 @@ app.controller('AppController', ['$scope', '$rootScope', '$state', 'AuthService'
     $scope.userRoles = USER_ROLES;
     $scope.isAuthorized = AuthService.isAuthorized;
 
-    $rootScope.$on('UserAuthenticated', function(credentials){
+    $rootScope.$on('UserAuthenticated', function(evt, credentials){
         $scope.currentUser = credentials;
         $scope.authenticated = true;
     });
@@ -223,7 +223,7 @@ login.service('AuthService', ['$q', '$timeout', '$http', '$rootScope', 'SessionS
             .success(function(loginResp){
                 if (loginResp.meta.success) {   // Successful logged in user
                     SessionService.create(loginResp.data.username, loginResp.data.role, loginResp.data.id);
-                    $rootScope.$broadcast('UserAuthenticated', { username: SessionService.username, role: SessionService.role });   // Broadcast a message in the Rootscope notifying
+                    $rootScope.$broadcast('UserAuthenticated', { username: SessionService.username, role: SessionService.role, id: SessionService.user_id });   // Broadcast a message in the Rootscope notifying
                     deferred.resolve({  // Cache the credentials in the Session
                         username: SessionService.username,
                         role: SessionService.role
