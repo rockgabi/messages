@@ -93,4 +93,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
     }
 
+    public function sendInvitation($user_target_id) {
+        FriendInvitation::addInvitation($this->id, $user_target_id);
+    }
+
 }

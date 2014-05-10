@@ -19,6 +19,7 @@ Route::get('/', function()
 Route::post('auth', 'AuthController@authenticate');
 Route::post('register', 'AuthController@register');
 Route::controller('messages', 'MessageController');
+Route::controller('friends', 'FriendController');
 
 Route::get('/app', function(){
     return View::make('login');

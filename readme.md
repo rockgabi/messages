@@ -10,7 +10,7 @@ It's intended to build the knowledge from a 'good practices' point of view. Usin
 
 ## Feature Overview
 
-- Registering and Loging System, managed by the Server-Side Framework
+- Registering and Login System, managed by the Server-Side Framework
 - Messages shared by User. A user can write/remove whatever he wants.
 - Friend System. Friend can read others Messages. A user can send/accept friend requests
 - Profile. Main user information goes here.
