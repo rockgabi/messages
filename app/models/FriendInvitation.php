@@ -11,16 +11,34 @@ class FriendInvitation extends Eloquent {
      * @param $userTargetId
      */
     public static function addInvitation($userInitiatorId, $userTargetId) {
-        if (!FriendInvitation::invitationExists($userInitiatorId, $userTargetId)) {
-            $friendInvitation = new FriendInvitation();
+        $invitation = FriendInvitation::getInvitation($userInitiatorId, $userTargetId);
+        if (!is_null($invitation)) {
+            $friendInvitation = new FriendInvitation(); // Instance a new friend invitation
             $friendInvitation->user_initiator_id = $userInitiatorId;
             $friendInvitation->user_target_id = $userTargetId;
-            $friendInvitation->save();
+            $friendInvitation->save();  // Save the friend invitation
         }
     }
 
-    public static function removeInvitation($user_initiator, $user_target) {
+    public static function removeInvitation($userInitiatorId, $userTargetId) {
 
+    }
+
+    /**
+     * Accept the invitation of a user to another user
+     *
+     * @param $userInitiatorId
+     * @param $userTargetId
+     */
+    public static function acceptInvitation($userInitiatorId, $userTargetId) {
+        $invitation = FriendInvitation::getInvitation($userInitiatorId, $userTargetId);
+        if (!is_null($invitation)) {  // If an invitation exists
+            $friendship = new Friendship(); // Instance a new friendship
+            $friendship->user1_id = $userInitiatorId;
+            $friendship->user2_id = $userTargetId;
+            $friendship->save();    // Save the newly created friendship
+            $invitation->delete();  // Remove the invitation
+        }
     }
 
     /**
@@ -30,10 +48,10 @@ class FriendInvitation extends Eloquent {
      * @param $userTargetId
      * @return bool
      */
-    public static function invitationExists($userInitiatorId, $userTargetId) {
+    public static function getInvitation($userInitiatorId, $userTargetId) {
         $invitation = FriendInvitation::where("user_initiator_id", "=", $userInitiatorId)
-            ->where("user_target_id", "=", $userTargetId, "AND");
-        if ($invitation->count() > 0) return true;
-        else return false;
+            ->where("user_target_id", "=", $userTargetId, "AND")->first();
+        if ($invitation->count() > 0) return $invitation;
+        else return null;
     }
 }

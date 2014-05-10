@@ -50,4 +50,15 @@
         </ul>
     </div>
 
+    <div class="sidebar-item">
+        <h5><span class="glyphicon glyphicon-user"></span>Pending invitations</h5>
+        <ul id="invitations" ng-repeat="user in invitations">
+            <li class="usr-info-min">
+                <img ng-src="<% user.avatar %>" alt="user.username"/>
+                <p><% user.username %></p>
+                <a href="" ng-click="acceptInvitation(user.id)">Accept invitation</a>
+            </li>
+        </ul>
+    </div>
+
 </section>

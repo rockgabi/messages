@@ -101,18 +101,26 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         FriendInvitation::addInvitation($this->id, $user_target_id);
     }
 
+    public function acceptInvitation($user_target_id) {
+        FriendInvitation::acceptInvitation($this->id, $user_target_id);
+    }
+
     /**
      * Returns an array of recommended users for this user
      *
      * @return array    recommended users for this user
      */
     public function getRecommended() {
-        //$users = User::where("id", "!=", $this->id)->get();
         $users = User::where("id", "!=", $this->id) // Not this same user
             ->whereNotIn("id", function($query){    // Not in already invited users
                 $query->select("user_target_id")
                     ->from("friend_invitation")
                     ->where("user_initiator_id", "=", $this->id);
+            }, "AND")
+            ->whereNotIn("id", function($query){    // Not in already invited users
+                $query->select("user_initiator_id")
+                    ->from("friend_invitation")
+                    ->where("user_target_id", "=", $this->id);
             }, "AND")
             ->whereNotIn("id", function($query){    // Not in already friend users
                 $query->select("user1_id")
@@ -125,6 +133,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
                     ->where("user1_id", "=", $this->id);
             }, "AND")->get();
         return $users->toArray();
+    }
+
+    /**
+     * Gets the pending invitation for this user
+     *
+     * @return array    Users which has pending invitations
+     */
+    public function getInvitations() {
+        $users = DB::table("users")
+            ->join("friend_invitation", "users.id", "=", "friend_invitation.user_initiator_id")
+            ->where("friend_invitation.user_target_id", "=", $this->id)->select("users.*")->get();
+        return $users;
     }
 
 }

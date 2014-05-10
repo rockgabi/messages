@@ -56,6 +56,7 @@ app.controller('AppController', ['$scope', '$rootScope', '$state', 'AuthService'
 app.controller('MessageController', ['$scope', '$http', function($scope, $http){
     $scope.messages = [];
     $scope.recommended = [];
+    $scope.invitations = [];
 
     $http({ method: 'GET', url: '/messages' })  // Hits the messages services from the backend.
         .success(function(messagesResp){
@@ -68,7 +69,7 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
             $scope.messages = [];
         });
 
-    $http({ method: 'GET', url: '/friends/recommended'})    // Fetch the recommended users
+    $http({ method: 'GET', url: '/friends/recommended' })    // Fetch the recommended users
         .success(function(recommendedResp){
             if (recommendedResp.meta.success)
                 $scope.recommended = recommendedResp.data.users;    // Fill with the recommended users
@@ -77,6 +78,17 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
         })
         .error(function(){
             $scope.recommended = [];
+        });
+
+    $http({ method: 'GET', url: '/friends/invitations' })
+        .success(function(invitationsResp){
+            if (invitationsResp.meta.success)
+                $scope.invitations = invitationsResp.data.users;    // Fill with the recommended users
+            else
+                $scope.invitations = [];
+        })
+        .error(function(){
+            $scope.invitations = [];
         });
 
     $scope.sendMessage = function() {   // Method for sending a message to the server
@@ -124,7 +136,24 @@ app.controller('MessageController', ['$scope', '$http', function($scope, $http){
             .error(function(addFriendResponse){
                 console.log('Error', addFriendResponse);
             });
+    };
+
+    $scope.acceptInvitation = function(id) {
+        $http.post('/friends/accept', { id: id }, {})
+            .success(function(acceptFriendResp){
+                console.log('Success', acceptFriendResp);
+                for (var i=0; i<$scope.invitations.length; i++) {
+                    if ($scope.invitations[i].id === id) {
+                        $scope.invitations.splice(i, 1);
+                        break;
+                    }
+                }
+            })
+            .error(function(acceptFriendResp){
+                console.log('Error', acceptFriendResp);
+            })
     }
+
 }]);
 
 // Set the active nav item in terms of the current $location url. It uses href attribute of the nav items to select the current one
