@@ -107,7 +107,23 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      * @return array    recommended users for this user
      */
     public function getRecommended() {
-        $users = User::where("id", "!=", $this->id)->get();
+        //$users = User::where("id", "!=", $this->id)->get();
+        $users = User::where("id", "!=", $this->id) // Not this same user
+            ->whereNotIn("id", function($query){    // Not in already invited users
+                $query->select("user_target_id")
+                    ->from("friend_invitation")
+                    ->where("user_initiator_id", "=", $this->id);
+            }, "AND")
+            ->whereNotIn("id", function($query){    // Not in already friend users
+                $query->select("user1_id")
+                    ->from("friendship")
+                    ->where("user2_id", "=", $this->id);
+            }, "AND")
+            ->whereNotIn("id", function($query){    // Not in already friend users
+                $query->select("user2_id")
+                    ->from("friendship")
+                    ->where("user1_id", "=", $this->id);
+            }, "AND")->get();
         return $users->toArray();
     }
 
