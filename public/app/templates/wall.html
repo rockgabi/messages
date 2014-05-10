@@ -41,7 +41,7 @@
         <input type="text" class="form-control" placeholder="Type his name" />
     </div>
 
-    <div class="sidebar-item">
+    <div class="sidebar-item" ng-if="recommended.length > 0">
         <h5><span class="glyphicon glyphicon-th-list"></span>Recommended friends</h5>
         <ul id="recommended" ng-repeat="user in recommended">
             <li class="usr-info-min">
@@ -52,7 +52,7 @@
         </ul>
     </div>
 
-    <div class="sidebar-item">
+    <div class="sidebar-item" ng-if="invitations.length > 0">
         <h5><span class="glyphicon glyphicon-user"></span>Pending invitations</h5>
         <ul id="invitations" ng-repeat="user in invitations">
             <li class="usr-info-min">
